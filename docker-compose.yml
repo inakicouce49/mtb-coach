@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  mtb-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/miappdb
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017
+      - ME_CONFIG_BASICAUTH_USERNAME=JICG
+      - ME_CONFIG_BASICAUTH_PASSWORD=128075
+
+volumes:
+  mongo_data:
