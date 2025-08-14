@@ -1,19 +1,18 @@
-// 📦 strava.js cargado
-console.log('📦 strava.js cargado');
-
 const express = require('express');
 const axios = require('axios');
+const Usuario = require('../models/usuario');
 const router = express.Router();
 
-// 🩺 Ruta de prueba para verificar que el módulo está activo
+console.log('📦 strava.js cargado');
+
+// Ruta de prueba para verificar que el módulo está activo
 router.get('/ping', (req, res) => {
   res.send('pong');
 });
 
-// 🔄 Ruta para intercambiar el código de autorización por un token de acceso
+// Intercambiar el código de autorización por tokens
 router.get('/exchange_token', async (req, res) => {
-  const code = req.query.code;
-
+  const { code } = req.query;
   if (!code) {
     return res.status(400).send('Falta el parámetro "code"');
   }
@@ -26,18 +25,34 @@ router.get('/exchange_token', async (req, res) => {
       grant_type: 'authorization_code'
     });
 
-    const { access_token, refresh_token, athlete } = response.data;
+    const { access_token, refresh_token, expires_at, athlete } = response.data;
 
-    console.log('✅ Access Token:', access_token);
-    console.log('🏃‍♂️ Usuario Strava:', athlete.firstname, athlete.lastname);
+    // Guardar o actualizar el usuario en MongoDB
+    let usuario = await Usuario.findOne({ stravaId: athlete.id });
+    if (!usuario) {
+      usuario = new Usuario({
+        nombre: athlete.firstname,
+        email: athlete.email,
+        stravaId: athlete.id,
+        accessToken: access_token,
+        refreshToken: refresh_token,
+        tokenExpira: new Date(expires_at * 1000)
+      });
+    } else {
+      usuario.accessToken = access_token;
+      usuario.refreshToken = refresh_token;
+      usuario.tokenExpira = new Date(expires_at * 1000);
+    }
+    await usuario.save();
 
-    // Puedes guardar el token en MongoDB si quieres persistencia
-    res.redirect(`/sync?token=${access_token}`);
+    res.json({ mensaje: 'Usuario conectado y guardado', usuario });
   } catch (error) {
-    console.error('❌ Error al intercambiar token:', error.response?.data || error.message);
-    res.status(500).send('Error al obtener el token');
+    console.error(
+      '❌ Error al intercambiar token:',
+      error.response?.data || error.message
+    );
+    res.status(500).send('Error al obtener el token de Strava');
   }
 });
 
 module.exports = router;
-

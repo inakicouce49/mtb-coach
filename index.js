@@ -1,69 +1,49 @@
-// 📦 Cargar variables de entorno
+// 1. Cargar variables de entorno
 require('dotenv').config();
 
 const express = require('express');
-const cors = require('cors'); // ✅ Añadido para permitir peticiones externas
+const cors = require('cors');
 const mongoose = require('mongoose');
-const usuariosRoutes = require('./routes/usuarios');
-const entrenamientosRoutes = require('./routes/entrenamientos');
-const stravaRoutes = require('./routes/strava');
 
-const app = express(); // 👈 Inicialización de Express
+// 2. Importar routers apuntando a la carpeta correcta
+const stravaRoutes          = require('./routes/strava');
+const usuariosRoutes        = require('./routes/usuarios');
+const entrenamientosRoutes  = require('./routes/entrenamientos');
 
-app.use(cors()); // ✅ Activación de CORS
-app.use(express.json()); // ✅ Middleware para parsear JSON
+const app = express();
 
-// 📂 Rutas organizadas por funcionalidad
+// 3. Middlewares
+app.use(cors());
+app.use(express.json());
+
+// 4. Montar rutas
 app.use('/strava', stravaRoutes);
 app.use('/usuarios', usuariosRoutes);
 app.use('/entrenamientos', entrenamientosRoutes);
 
-// 🔍 Verificar que la URI se está leyendo
-console.log('🔍 URI de Mongo:', process.env.MONGO_URI);
+// 5. Conectar a MongoDB sin imprimir la contraseña
+const {
+  MONGO_USER,
+  MONGO_PASS,
+  MONGO_HOST,
+  MONGO_DB
+} = process.env;
 
-// 🌐 Conexión a MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => {
-  console.log('✅ Conectado a MongoDB Atlas');
-})
-.catch(err => {
-  console.error('❌ Error de conexión con MongoDB Atlas:', err);
-});
+const uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASS}` +
+            `@${MONGO_HOST}/${MONGO_DB}`;
 
-// 🛣️ Mostrar rutas activas del servidor principal
-console.log('\n📍 Rutas registradas directamente en app:');
-app._router.stack.forEach((r) => {
-  if (r.route && r.route.path) {
-    const methods = Object.keys(r.route.methods).join(', ').toUpperCase();
-    console.log(`🛣️ [${methods}] ${r.route.path}`);
-  }
-});
-
-// 🛣️ Mostrar rutas activas de cada router externo
-const listRoutes = (router, prefix = '') => {
-  router.stack.forEach((layer) => {
-    if (layer.route) {
-      const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
-      const path = prefix + layer.route.path;
-      console.log(`🛣️ [${methods}] ${path}`);
-    }
+mongoose
+  .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    // Mostramos sólo host y base, nunca la contraseña
+    console.log(`✔️  MongoDB conectada a ${MONGO_HOST}/${MONGO_DB}`);
+  })
+  .catch(err => {
+    console.error('❌ Error al conectar a MongoDB:', err.message);
   });
-};
 
-console.log('\n📍 Rutas en stravaRoutes:');
-listRoutes(stravaRoutes, '/strava');
-
-console.log('\n📍 Rutas en usuariosRoutes:');
-listRoutes(usuariosRoutes, '/usuarios');
-
-console.log('\n📍 Rutas en entrenamientosRoutes:');
-listRoutes(entrenamientosRoutes, '/entrenamientos');
-
-// 🚀 Puerto
+// 6. Arrancar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n🚀 Servidor escuchando en http://0.0.0.0:${PORT}`);
+  console.log(`🚀 Servidor escuchando en http://0.0.0.0:${PORT}`);
 });

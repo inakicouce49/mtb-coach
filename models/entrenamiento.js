@@ -20,10 +20,10 @@ const entrenamientoSchema = new mongoose.Schema({
     required: true
   },
   notas: {
-    type: String
+    type: String,
+    default: ''
   }
-});
+});  // Cierra el new mongoose.Schema({...})
 
-const Entrenamiento = mongoose.model('Entrenamiento', entrenamientoSchema);
-
-module.exports = Entrenamiento;
+// Exporta el modelo
+module.exports = mongoose.model('Entrenamiento', entrenamientoSchema);

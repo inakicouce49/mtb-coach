@@ -35,7 +35,8 @@ router.post('/', async (req, res) => {
 // Obtener todos los entrenamientos
 router.get('/', async (req, res) => {
   try {
-    const entrenos = await Entrenamiento.find().populate('usuarioId', 'nombre email');
+    const entrenos = await Entrenamiento.find()
+      .populate('usuarioId', 'nombre email');
     res.json(entrenos);
   } catch (error) {
     console.error('❌ Error al obtener entrenamientos:', error);
