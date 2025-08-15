@@ -9,10 +9,12 @@ router.get('/', async (req, res) => {
   try {
     const usuarios = await Usuario.find();
     res.json(usuarios);
-  } catch (err) {
+   } catch (err) {
+    console.error(err);
     console.error('❌ Error al obtener usuarios:', err);
     res.status(500).json({ error: 'Error al obtener usuarios' });
   }
+
 });
 
 // Crear un nuevo usuario
