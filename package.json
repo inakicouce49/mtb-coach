@@ -2,10 +2,10 @@
   "name": "mtb-coach",
   "version": "1.0.0",
   "description": "API para gestionar entrenamientos y usuarios en MTB Coach",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
     "seed": "node seed.js"
   },
   "author": "Jose Repotosos",
@@ -15,7 +15,10 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.21.2",
-    "mongoose": "^7.8.7"
+    "helmet": "^8.1.0",
+    "mongodb": "^6.18.0",
+    "mongoose": "^7.8.7",
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
