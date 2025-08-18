@@ -15,6 +15,7 @@ const morgan = require('morgan');
 // 4. Importar routers
 const stravaRoutes = require('./routes/strava');
 const usuariosRoutes = require('./routes/usuarios');
+const usuariosBasicosRoutes = require('./routes/usuariosBasicos');
 const entrenamientosRoutes = require('./routes/entrenamientos');
 
 const app = express();
@@ -30,6 +31,7 @@ app.use(morgan('dev'));                         // Logging de peticiones
 // 6. Montar rutas de la API con prefijo /api
 app.use('/api/strava', stravaRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/usuariosBasicos', usuariosBasicosRoutes);
 app.use('/api/entrenamientos', entrenamientosRoutes);
 
 // 7. Ruta raíz para comprobar servidor
